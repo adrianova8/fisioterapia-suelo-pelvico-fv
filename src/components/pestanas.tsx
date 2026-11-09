@@ -12,12 +12,13 @@ import { Icono, type NombreIcono } from "./iconos";
 
 type Opciones = NonNullable<ComponentProps<typeof Tabs>["screenOptions"]>;
 
-const ALTO_BARRA = 60; // zona de icono + nombre, sin contar el margen seguro
+const ALTO_BARRA = 64; // zona de icono + nombre, sin contar el margen seguro
 
 export function useOpcionesPestanas(): Opciones {
   const { bottom } = useSafeAreaInsets();
-  // En iPhone con barra de inicio el margen es ~34; sin ella, dejamos un poco de aire.
-  const margenInferior = Platform.OS === "web" ? 8 : Math.max(bottom, 10);
+  // En iPhone con barra de inicio el margen es ~34 (también en Safari, vía
+  // env(safe-area-inset-bottom)); sin ella, dejamos un poco de aire.
+  const margenInferior = Math.max(bottom, Platform.OS === "web" ? 8 : 10);
   return {
     headerShown: false,
     tabBarActiveTintColor: colores.burdeos,
@@ -31,8 +32,10 @@ export function useOpcionesPestanas(): Opciones {
       paddingTop: 8,
       paddingBottom: margenInferior,
     },
-    tabBarItemStyle: { paddingVertical: 2 },
-    tabBarLabelStyle: { fontSize: 12, fontWeight: "600", marginTop: 2 },
+    tabBarItemStyle: { paddingVertical: 0, justifyContent: "center" },
+    tabBarIconStyle: { height: 26 },
+    // lineHeight fijo: en la web, sin él, el nombre quedaba aplastado y cortado.
+    tabBarLabelStyle: { fontSize: 12, lineHeight: 16, fontWeight: "600", marginTop: 2 },
     sceneStyle: { backgroundColor: colores.fondo },
   };
 }
