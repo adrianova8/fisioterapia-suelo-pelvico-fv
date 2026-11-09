@@ -2,10 +2,11 @@
 // PENDIENTE (§14 Fase 1.4): datos reales del centro y textos legales.
 import { useRouter } from "expo-router";
 import { useState, type ReactNode } from "react";
-import { View } from "react-native";
+import { Linking, Pressable, Text, View } from "react-native";
 
 import { type NombreIcono } from "@/components/iconos";
-import { Avatar, Miniatura, PIE_CLINICA } from "@/components/usuaria-ui";
+import { Icono } from "@/components/iconos";
+import { Avatar, CLINICA, Miniatura, PIE_CLINICA } from "@/components/usuaria-ui";
 import { CajaMensaje, Cabecera, FilaMenu, Pantalla, T, Tarjeta } from "@/components/ui";
 import { colores, espacio } from "@/constants/theme";
 import { api } from "@/lib/api";
@@ -55,8 +56,18 @@ export default function Mas() {
       <Tarjeta estilo={{ paddingVertical: espacio.s }}>
         <Seccion id="centro" icono="ubicacion" titulo="Clínica Fátima Veiga" subtitulo="Dirección y contacto">
           <T>Fisioterapia de suelo pélvico · Santander</T>
-          <T variante="tenue" estilo={{ marginTop: 4 }}>Sala de Movimiento</T>
-          <CajaMensaje tipo="aviso" texto="Pendiente: añadir la dirección, el teléfono y el horario reales del centro." />
+          <Pressable onPress={() => void Linking.openURL(CLINICA.mapa)} style={{ flexDirection: "row", gap: espacio.s, marginTop: espacio.m }}>
+            <Icono nombre="ubicacion" tam={18} color={colores.burdeos} />
+            <View style={{ flex: 1 }}>
+              <T>{CLINICA.direccion}</T>
+              <T variante="tenue">{CLINICA.localidad}</T>
+              <Text style={{ color: colores.burdeos, fontWeight: "600", fontSize: 14, marginTop: 2 }}>Cómo llegar →</Text>
+            </View>
+          </Pressable>
+          <Pressable onPress={() => void Linking.openURL(CLINICA.telefonoEnlace)} style={{ flexDirection: "row", gap: espacio.s, marginTop: espacio.m, alignItems: "center" }}>
+            <Icono nombre="telefono" tam={18} color={colores.burdeos} />
+            <Text style={{ color: colores.burdeos, fontWeight: "600", fontSize: 15 }}>{CLINICA.telefono}</Text>
+          </Pressable>
         </Seccion>
         <Seccion id="equipo" icono="equipo" titulo="Nuestro equipo" subtitulo="Conoce a nuestras profesionales">
           {(datos?.profesionales ?? []).map((p) => (

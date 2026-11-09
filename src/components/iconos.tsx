@@ -7,7 +7,7 @@ export type NombreIcono =
   | "inicio" | "clases" | "reservas" | "perfil" | "chevron" | "volver" | "reloj" | "persona"
   | "ubicacion" | "plazas" | "check" | "compartir" | "corazon" | "calendario" | "info" | "salir"
   | "equipo" | "pregunta" | "documento" | "candado" | "euro" | "mas" | "cerrar" | "camara"
-  | "panel" | "usuarias" | "horario" | "foto" | "alerta" | "lista";
+  | "panel" | "usuarias" | "horario" | "foto" | "alerta" | "lista" | "telefono";
 
 export function Icono({ nombre, tam = 22, color = colores.textoSuave, grosor = 1.8 }: { nombre: NombreIcono; tam?: number; color?: string; grosor?: number }) {
   const p = { stroke: color, strokeWidth: grosor, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -45,6 +45,8 @@ export function Icono({ nombre, tam = 22, color = colores.textoSuave, grosor = 1
             return <><Path d="M12 15V3.5m-4 4 4-4 4 4" {...p} /><Path d="M5 12v7.5h14V12" {...p} /></>;
           case "corazon":
             return <Path d="M12 20s-7.5-4.5-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.5 12 20 12 20Z" fill={color} stroke={color} strokeWidth={1} />;
+          case "telefono":
+            return <Path d="M6.6 3.5h2.6l1.4 4.2-2 1.4a12 12 0 0 0 6.3 6.3l1.4-2 4.2 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2Z" {...p} />;
           case "info":
             return <><Circle cx="12" cy="12" r="8.5" {...p} /><Path d="M12 11v5.5M12 7.8v.2" {...p} /></>;
           case "alerta":

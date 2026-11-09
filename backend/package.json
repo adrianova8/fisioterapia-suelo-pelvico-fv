@@ -1,0 +1,27 @@
+{
+  "name": "mama-en-movimiento-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API de Mamá en movimiento (Clínica Fátima Veiga): reglas de negocio + PostgreSQL",
+  "scripts": {
+    "db": "node scripts/dev-db.mjs",
+    "db:init": "node --env-file-if-exists=.env scripts/init-db.mjs",
+    "dev": "TZ=Europe/Madrid next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "TZ=Europe/Madrid next start",
+    "typecheck": "tsc --noEmit",
+    "test": "TZ=Europe/Madrid node --env-file-if-exists=.env --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.5",
+    "postgres": "3.4.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "embedded-postgres": "18.6.0-beta.19",
+    "typescript": "^5"
+  }
+}

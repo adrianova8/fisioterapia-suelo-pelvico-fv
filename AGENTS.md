@@ -1,9 +1,26 @@
 # Mamá en movimiento — App móvil
 
 App móvil (React Native + Expo) del centro de fisioterapia de
-suelo pélvico. Consume la API del proyecto hermano
-`fisioterapia_suelo_pelvico_fv` (Next.js + PostgreSQL): **no
-reimplementa ninguna regla de negocio**.
+suelo pélvico + su backend en `backend/` (Next.js 16, solo API,
++ PostgreSQL), en el mismo repositorio. La app **no reimplementa
+ninguna regla de negocio**: viven en `backend/server/motor.ts`.
+
+## Backend (`backend/`, reconstruido el 9 nov 2026)
+
+- Proyecto aparte con su `package.json` (Metro lo ignora por
+  `metro.config.js`; el `tsconfig` de la app lo excluye).
+- `server/motor.ts` — reglas (cuota, mes de la clase, ventana,
+  cancelación, lista de espera, saldo, fijas, RGPD). Cambios en
+  transacción (`sql.begin`) con `FOR UPDATE` de sesión→usuaria;
+  avisos (push+email) siempre DESPUÉS del commit.
+- `server/vistas.ts` — forma del JSON = `src/lib/tipos.ts`.
+- `app/api/**/route.ts` — rutas (mismas que el modo demo).
+- `GET /api/cron/recordatorios` (Bearer `CRON_SECRET`, Vercel
+  Cron en `vercel.json`, 17:00 UTC): push + email la víspera.
+- Emails con Resend (`RESEND_API_KEY`); sin clave, a consola.
+- Imágenes en BYTEA (JPG/PNG/WebP ≤3 MB, sin `sharp`).
+- `npm test` (con base y servidor arrancados): 16 pruebas de
+  las reglas (§13 del relevo) contra la API real; se limpian solas.
 
 ## Stack
 
@@ -18,19 +35,20 @@ reimplementa ninguna regla de negocio**.
 ## Desarrollo
 
 ```bash
-# 1) Backend (proyecto hermano fv):
-cd ../fisioterapia_suelo_pelvico_fv
-node scripts/dev-db.mjs      # Postgres embebido :55432
-npm run dev                  # Next.js :3000 (también en la IP LAN)
-
-# 2) App:
-cd ../fisioterapia_suelo_pelvico_fv2
-npm start                  # Expo dev server :8081
+# 1) Base de datos (terminal aparte, dejar abierta):
+cd backend && npm run db       # Postgres embebido :55432
+npm run db:init                # 1.ª vez: esquema + datos de prueba
+# 2) Backend:
+cd backend && npm run dev      # Next.js :3000 (también en la IP LAN)
+# 3) App (raíz del repo):
+npm start                      # Expo dev server :8081
 ```
 
-- `.env.local` define `EXPO_PUBLIC_API_URL` apuntando a la IP
-  LAN del PC (`http://<ip>:3000`) para probar en móvil físico.
-  En emulador Android basta el valor por defecto `10.0.2.2`.
+- `.env.local` (raíz) define `EXPO_PUBLIC_API_URL` con la IP
+  LAN del Mac (`http://<ip>:3000`); vacío o `demo` = modo demo.
+- `backend/.env` (copiar de `backend/.env.example`):
+  `DATABASE_URL`, `TZ=Europe/Madrid`, `CRON_SECRET`, Resend,
+  `GOOGLE_CLIENT_IDS`.
 - Credenciales seed: `laura@test.com` / `Password123`
   (usuaria), `admin@test.com` / `Admin12345` (admin).
 - Typecheck: `npx tsc --noEmit` (las rutas tipadas se
@@ -137,6 +155,11 @@ npm start                  # Expo dev server :8081
   gestione. Falta crear los client IDs en Google Cloud y
   ponerlos en `EXPO_PUBLIC_GOOGLE_*` (app) y `GOOGLE_CLIENT_IDS`
   (backend). En móvil requiere development build (no Expo Go).
-- Recordatorios push programados (hoy solo eventos).
+- Recordatorios: hechos en el backend (push + email la víspera).
+  Falta decidir la hora definitiva y un interruptor en el perfil
+  (la columna `usuarios.recordatorios` ya existe).
+- Resend + dominio verificado para emails reales.
+- Producción: API → Vercel con raíz `backend/`, BD → Neon
+  (Frankfurt), `npm run db:init -- --sin-datos` contra Neon.
 - Build EAS (`eas build`) + despliegue de producción
   (API → Vercel, BD → Neon).

@@ -168,6 +168,15 @@ export function ResumenClase({ programa, imagen, inicio, fin, profesional, sala 
 
 export const PIE_CLINICA = "Clínica Fátima Veiga · Suelo Pélvico Santander";
 
+// Datos de contacto del centro (sin horario, a petición de la clínica).
+export const CLINICA = {
+  direccion: "C. Fernando Calderón, 8",
+  localidad: "39005 Santander, Cantabria",
+  telefono: "626 52 98 17",
+  telefonoEnlace: "tel:+34626529817",
+  mapa: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("C. Fernando Calderón, 8, 39005 Santander, Cantabria"),
+};
+
 const est = StyleSheet.create({
   tarjeta: {
     flexDirection: "row",
