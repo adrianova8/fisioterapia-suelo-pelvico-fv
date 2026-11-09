@@ -7,15 +7,15 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv.vercel.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv-server.vercel.app" }
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv.vercel.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv-server.vercel.app" }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv.vercel.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://fisioterapia-suelo-pelvico-fv-server.vercel.app" }
     }
   },
   "submit": {
