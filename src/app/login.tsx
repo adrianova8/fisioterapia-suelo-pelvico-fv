@@ -2,6 +2,7 @@ import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
+import { BotonGoogle } from "@/components/boton-google";
 import { IlustracionPortada } from "@/components/ilustracion";
 import { Icono } from "@/components/iconos";
 import { PIE_CLINICA } from "@/components/usuaria-ui";
@@ -9,10 +10,13 @@ import { Boton, CajaMensaje, Campo, Pantalla } from "@/components/ui";
 import { colores, espacio, radios } from "@/constants/theme";
 import { MODO_DEMO, mensajeError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useGoogle } from "@/lib/google";
 
 export default function Login() {
   const router = useRouter();
-  const { entrar } = useAuth();
+  const { entrar, entrarConGoogle } = useAuth();
+  const google = useGoogle();
+  const [conGoogle, setConGoogle] = useState(false);
   // El dibujo va de borde a borde (la pantalla tiene 16 de margen a cada lado).
   const anchoDibujo = Math.min(useWindowDimensions().width, 560 + espacio.l * 2);
   const [modo, setModo] = useState<"portada" | "acceso">("portada");
@@ -38,6 +42,21 @@ export default function Login() {
     }
   }
 
+  async function onGoogle() {
+    setError(null);
+    setConGoogle(true);
+    try {
+      const idToken = await google.pedir();
+      if (!idToken) return; // canceló
+      await entrarConGoogle(idToken);
+      router.replace("/");
+    } catch (e) {
+      setError(mensajeError(e));
+    } finally {
+      setConGoogle(false);
+    }
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Pantalla estilo={modo === "portada" ? { paddingTop: espacio.xl, paddingBottom: 0 } : { paddingTop: espacio.xl }}>
@@ -58,6 +77,8 @@ export default function Login() {
             <View style={est.panel}>
               <Boton titulo="Crear cuenta" onPress={() => router.push("/registro")} />
               <Boton titulo="Iniciar sesión" variante="secundario" onPress={() => setModo("acceso")} />
+              <BotonGoogle onPress={onGoogle} cargando={conGoogle} />
+              {error ? <CajaMensaje tipo="error" texto={error} /> : null}
               <Boton titulo="Continuar como invitada" variante="texto" onPress={() => router.push("/invitada")} />
               <Text style={[est.pie, { marginTop: espacio.s }]}>{PIE_CLINICA}</Text>
             </View>
@@ -89,6 +110,12 @@ export default function Login() {
               </Pressable>
             </Link>
             <Boton titulo="Entrar" onPress={onEntrar} cargando={enviando} />
+            <View style={est.separador}>
+              <View style={est.linea} />
+              <Text style={est.o}>o</Text>
+              <View style={est.linea} />
+            </View>
+            <BotonGoogle onPress={onGoogle} cargando={conGoogle} />
             <Boton titulo="Volver" variante="texto" onPress={() => setModo("portada")} estilo={{ marginTop: espacio.s }} />
             {MODO_DEMO ? (
               <View style={{ marginTop: espacio.l }}>
@@ -133,6 +160,9 @@ const est = StyleSheet.create({
     paddingBottom: espacio.xxl * 2,
     gap: espacio.m,
   },
+  separador: { flexDirection: "row", alignItems: "center", gap: espacio.m, marginVertical: espacio.l },
+  linea: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colores.borde },
+  o: { color: colores.textoSuave, fontSize: 13 },
   enlace: { color: colores.burdeos, fontWeight: "600", fontSize: 14 },
   pie: { textAlign: "center", color: colores.morado, fontSize: 13, marginTop: espacio.xxl, fontWeight: "500" },
 });

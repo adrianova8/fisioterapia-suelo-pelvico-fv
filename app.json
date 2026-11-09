@@ -8,7 +8,6 @@
     "scheme": "mamaenmovimiento",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "es.clinicafatimaveiga.mamaenmovimiento"
     },
     "android": {
@@ -41,7 +40,7 @@
         {
           "backgroundColor": "#FBF4F1",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 200
         }
       ]
     ],

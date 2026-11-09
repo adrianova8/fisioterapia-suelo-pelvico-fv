@@ -13,6 +13,7 @@ interface ContextoAuth {
   entrar: (email: string, password: string) => Promise<void>;
   registrar: (datos: { nombre: string; email: string; password: string; programaId: number }) => Promise<void>;
   entrarConToken: (token: string) => Promise<void>;
+  entrarConGoogle: (idToken: string) => Promise<void>;
   salir: () => Promise<void>;
   refrescar: () => Promise<void>;
 }
@@ -80,6 +81,15 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
     [entrarConToken],
   );
 
+  // id_token de Google → el backend lo verifica y crea la usuaria si no existe.
+  const entrarConGoogle = useCallback(
+    async (idToken: string) => {
+      const r = await api.post<RespuestaLogin>("/api/auth/google", { idToken });
+      await entrarConToken(r.token);
+    },
+    [entrarConToken],
+  );
+
   const salir = useCallback(async () => {
     try {
       await api.post("/api/auth/logout");
@@ -90,7 +100,7 @@ export function ProveedorAuth({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ cargando, usuario, entrar, registrar, entrarConToken, salir, refrescar: cargarYo }}>
+    <Ctx.Provider value={{ cargando, usuario, entrar, registrar, entrarConToken, entrarConGoogle, salir, refrescar: cargarYo }}>
       {children}
     </Ctx.Provider>
   );

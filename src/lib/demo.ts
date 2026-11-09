@@ -417,6 +417,18 @@ export async function peticionDemo(metodo: Metodo, rutaCompleta: string, cuerpo:
       tokens.set(t, u.id);
       return ok({ token: t, usuario: verUsuario(u) });
     }
+    case "POST /api/auth/google": {
+      // Demo: simula una cuenta de Google nueva (sin plan, programa por defecto).
+      const email = "usuaria.google@gmail.com";
+      let u = usuarios.find((x) => x.email === email && !x.eliminada);
+      if (!u) {
+        u = { id: nuevoId(), nombre: "Usuaria Google", email, password: "", rol: "USUARIO", programaId: 1, saldo: 0 };
+        usuarios.push(u);
+      }
+      const t = `demo-${u.id}`;
+      tokens.set(t, u.id);
+      return ok({ token: t, usuario: verUsuario(u) });
+    }
     case "POST /api/auth/logout":
       if (token) tokens.delete(token);
       return ok({ ok: true });

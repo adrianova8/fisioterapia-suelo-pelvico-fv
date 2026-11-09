@@ -130,8 +130,9 @@ npm start                  # Expo dev server :8081
 
 ## Pendiente
 
-- Google Sign-In: cableado (`src/lib/google.ts`, botón en
-  `login.tsx`). `POST /api/auth/google` crea la usuaria si no
+- Google Sign-In: cableado (`src/lib/google.ts` con
+  `expo-auth-session`, `BotonGoogle` en la portada y en el acceso;
+  en modo demo entra como "Usuaria Google"). `POST /api/auth/google` crea la usuaria si no
   existe (programa por defecto, sin plan) para que el admin la
   gestione. Falta crear los client IDs en Google Cloud y
   ponerlos en `EXPO_PUBLIC_GOOGLE_*` (app) y `GOOGLE_CLIENT_IDS`
