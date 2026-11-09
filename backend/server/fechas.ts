@@ -5,9 +5,9 @@ export const HORA = 3600_000;
 export const DIA = 24 * HORA;
 export const ZONA = "Europe/Madrid";
 
-if (process.env.TZ !== ZONA) {
-  console.warn(`[fechas] TZ es "${process.env.TZ ?? ""}" y debería ser "${ZONA}". Las horas de las clases pueden salir desplazadas.`);
-}
+// Vercel no deja configurar TZ (variable reservada): se fija aquí. Node aplica
+// el cambio en caliente a todas las fechas. instrumentation.ts lo hace también al arrancar.
+if (process.env.TZ !== ZONA) process.env.TZ = ZONA;
 
 /** Lunes 00:00 de la semana de `d`. */
 export function lunes(d: Date): Date {

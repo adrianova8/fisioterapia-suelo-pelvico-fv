@@ -5,6 +5,8 @@
 // Para cambios que deben ir juntos: `await sql.begin(async (tx) => { ... })`.
 import postgres from "postgres";
 
+import "./fechas"; // fija la zona horaria antes de usar fechas
+
 export type Db = postgres.Sql<Record<string, unknown>>;
 
 const global_ = globalThis as unknown as { __sql?: Db };
@@ -21,4 +23,17 @@ function crear(): Db {
   }) as unknown as Db;
 }
 
-export const sql: Db = global_.__sql ?? (global_.__sql = crear());
+// Perezosa: la conexión se crea en la primera consulta (así `next build`
+// funciona aunque aún no haya DATABASE_URL).
+function real(): Db {
+  return global_.__sql ?? (global_.__sql = crear());
+}
+
+export const sql: Db = new Proxy(function () {} as unknown as Db, {
+  apply: (_t, _this, args) => (real() as unknown as (...a: unknown[]) => unknown)(...args),
+  get: (_t, prop) => {
+    const r = real() as unknown as Record<string | symbol, unknown>;
+    const v = r[prop];
+    return typeof v === "function" ? (v as (...a: unknown[]) => unknown).bind(r) : v;
+  },
+});
