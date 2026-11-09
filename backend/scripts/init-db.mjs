@@ -1,7 +1,9 @@
 // Crea el esquema de la base de datos y, si está vacía, los datos de prueba.
 // Es idempotente: se puede ejecutar varias veces sin romper nada.
 //   npm run db:init                 → esquema + datos de prueba
-//   npm run db:init -- --sin-datos  → solo esquema (producción)
+//   npm run db:init -- --produccion → esquema + datos básicos del centro
+//                                     (programas, tarifas, profesionales, sala),
+//                                     SIN usuarias de prueba. Luego: npm run crear-admin
 import { randomBytes, scryptSync } from "node:crypto";
 import postgres from "postgres";
 
@@ -11,7 +13,7 @@ if (!url) {
   process.exit(1);
 }
 const sql = postgres(url, { max: 1, onnotice: () => {} });
-const sinDatos = process.argv.includes("--sin-datos");
+const produccion = process.argv.includes("--produccion");
 
 const ESQUEMA = `
 CREATE TABLE IF NOT EXISTS programas (
@@ -168,17 +170,25 @@ function hashPassword(p) {
   return `${salt}:${scryptSync(p, salt, 64).toString("hex")}`;
 }
 
+async function datosBasicos(tx) {
+  await tx`INSERT INTO programas (id, nombre) VALUES (1,'Embarazo'),(2,'Postparto'),(3,'+50') ON CONFLICT DO NOTHING`;
+  await tx`INSERT INTO profesionales (id, nombre) VALUES (1,'Ana'),(2,'Ángela') ON CONFLICT DO NOTHING`;
+  await tx`INSERT INTO salas (id, nombre) VALUES (1,'Sala de Movimiento') ON CONFLICT DO NOTHING`;
+  await tx`INSERT INTO tarifas (id, nombre, sesiones_semana, precio_centimos) VALUES
+    (1,'1 día por semana',1,5500),(2,'2 días por semana',2,9000) ON CONFLICT DO NOTHING`;
+  for (const t of ["programas", "profesionales", "salas", "tarifas"]) {
+    await tx.unsafe(`SELECT setval(pg_get_serial_sequence('${t}','id'), (SELECT max(id) FROM ${t}))`);
+  }
+  console.log("Datos básicos del centro listos (programas, tarifas, Ana y Ángela, Sala de Movimiento).");
+}
+
 async function sembrar(tx) {
   const [{ n }] = await tx`SELECT count(*)::int AS n FROM usuarios`;
   if (n > 0) {
     console.log("La base ya tiene datos: no se añaden datos de prueba.");
     return;
   }
-  await tx`INSERT INTO programas (id, nombre) VALUES (1,'Embarazo'),(2,'Postparto'),(3,'+50')`;
-  await tx`INSERT INTO profesionales (id, nombre) VALUES (1,'Ana'),(2,'Ángela')`;
-  await tx`INSERT INTO salas (id, nombre) VALUES (1,'Sala de Movimiento')`;
-  await tx`INSERT INTO tarifas (id, nombre, sesiones_semana, precio_centimos) VALUES
-    (1,'1 día por semana',1,5500),(2,'2 días por semana',2,9000)`;
+  await datosBasicos(tx);
 
   const usuarias = [
     [1, "Laura Martínez", "laura@test.com", 1, "USUARIO", 0, "Password123"],
@@ -229,7 +239,8 @@ async function sembrar(tx) {
 try {
   await sql.begin(async (tx) => {
     await tx.unsafe(ESQUEMA);
-    if (!sinDatos) await sembrar(tx);
+    if (produccion) await datosBasicos(tx);
+    else await sembrar(tx);
   });
   console.log("Esquema listo.");
 } finally {

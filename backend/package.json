@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "TZ=Europe/Madrid next start",
     "typecheck": "tsc --noEmit",
-    "test": "TZ=Europe/Madrid node --env-file-if-exists=.env --test tests/*.test.mjs"
+    "test": "TZ=Europe/Madrid node --env-file-if-exists=.env --test tests/*.test.mjs",
+    "crear-admin": "node --env-file-if-exists=.env scripts/crear-admin.mjs"
   },
   "dependencies": {
     "next": "16.4.5",
